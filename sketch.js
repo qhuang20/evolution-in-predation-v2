@@ -3,6 +3,7 @@
 
 const ciliates = [];
 const algaes = [];
+const copepods = [];
 
 const maxNumAlgaes = 100;
 const numCiliates = 10;
@@ -32,6 +33,7 @@ function setup() {
 
   generateCiliates(numCiliates)
   generateAlgaes(30);
+  generateCopepods(2);
 }
 
 function draw() {
@@ -42,13 +44,15 @@ function draw() {
   if (algaes.length < maxNumAlgaes && random(1) < algaeBirthRate) {
     generateAlgaes(1);
   }
-
   displayAlgaes(algaes, color(0, 255, 0), 4);
 
+  // Ciliate 
+  const algaesPositions = algaes;
+  const copepodPositions = copepods.map(copepod => copepod.position);
   for (let i = ciliates.length - 1; i >= 0; i--) {
     const ciliate = ciliates[i];
     ciliate.borders();
-    ciliate.actOnEnvironment(algaes);
+    ciliate.actOnEnvironment(algaesPositions, copepodPositions);
     ciliate.update();
     ciliate.display();
 
@@ -62,13 +66,33 @@ function draw() {
       ciliates.splice(i, 1);
     }
   }
+
+  // Copepod 
+  for (let i = copepods.length - 1; i >= 0; i--) {
+    const copepod = copepods[i];
+    copepods[i].update(); 
+    copepods[i].borders(); 
+    copepods[i].display(); 
+  }
 }
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
 // --- Helper functions ----------------------------
 
-// Generate algaess at random positions
+// Generate algaes at random positions
 function generateAlgaes(count) {
   for (let i = 0; i < count; i++) {
     const x = random(width);
@@ -77,7 +101,17 @@ function generateAlgaes(count) {
   }
 }
 
-// Generate ciliate at random positions
+function displayAlgaes(itemList, fillColor, size) { 
+  fill(fillColor);
+  noStroke();
+  for (const item of itemList) {
+    ellipse(item.x, item.y, size, size);
+  }
+}
+
+
+
+// Generate ciliates at random positions
 function generateCiliates(count) {
   // Create initial ciliates
   for (let i = 0; i < count; i++) {
@@ -87,14 +121,21 @@ function generateCiliates(count) {
   }
 }
 
-// Display algaess
-function displayAlgaes(itemList, fillColor, size) {
-  fill(fillColor);
-  noStroke();
-  for (const item of itemList) {
-    ellipse(item.x, item.y, size, size);
+
+
+// Generate copepods at random positions
+function generateCopepods(count) {
+  for (let i = 0; i < count; i++) {
+    const x = random(width);
+    const y = random(height);
+    copepods[i] = new Copepod(x, y);
   }
 }
+
+
+
+
+
 
 // Display energy stats
 function displayStats() {
@@ -112,8 +153,6 @@ function displayStats() {
   text(`Algae Energy: ${totalAlgaeEnergy.toFixed(1)}`, width - 10, 40);
   text(`Ciliate Energy: ${totalCiliateEnergy.toFixed(1)}`, width - 10, 60);
 }
-
-
 
 function restartSketch() {
   // Clear existing arrays

@@ -3,16 +3,16 @@ class Ciliate {
     this.acceleration = createVector(0, 0);
     this.velocity = createVector(0, -1);
     this.position = createVector(x, y);
-    this.ovalWidth = random(10, 20); 
+    this.ovalWidth = random(10, 20);
     this.ovalHeight = random(20, 40);
     this.maxSpeed = 3;
     this.maxForce = 0.5;
-    this.maxEnergy = 10
+    this.maxEnergy = 10;
     this.mutationRate = 0.01;
 
     this.reproductionRate = 0.002; // default is 0.002
     this.lifespan = 1;
-    this.agingRate = 0.0005; // default is 0.0005 
+    this.agingRate = 0.0005; // default is 0.0005
     this.energy = 1; // init is 1 when it's born
     this.energyDissipationRate = 0.001;
 
@@ -24,9 +24,9 @@ class Ciliate {
     this.dna = [];
     if (existingDNA === undefined) {
       this.dna[0] = random(-2, 2); // Food attraction
-      this.dna[1] = random(-2, 2); // Poison repulsion
+      this.dna[1] = random(-2, 2); // Predator repulsion
       this.dna[2] = random(0, 100); // Food perception
-      this.dna[3] = random(0, 100); // Poison perception
+      this.dna[3] = random(0, 100); // Predator perception
     } else {
       this.dna = existingDNA.map((gene, index) => {
         if (random(1) < this.mutationRate) {
@@ -42,6 +42,7 @@ class Ciliate {
     this.lifespan -= this.agingRate;
     this.energy -= this.energyDissipationRate;
 
+    this.acceleration.limit(this.maxForce);
     this.velocity.add(this.acceleration);
     this.velocity.limit(this.maxSpeed);
     this.position.add(this.velocity);
@@ -52,39 +53,51 @@ class Ciliate {
     this.acceleration.add(force);
   }
 
-  seek(target) {
+  forceTo(target) {
     const desiredDir = p5.Vector.sub(target, this.position);
     desiredDir.setMag(this.maxSpeed);
     const steeringForce = p5.Vector.sub(desiredDir, this.velocity);
-    steeringForce.limit(this.maxForce);
     return steeringForce;
   }
 
-  seekClosest(list, nutritionValue, perception) {
+  closestObjectIndex(list, perception) {
     let closestDist = Infinity;
-    let closestPoint = null;
+    let closestIndex = null;
     for (let i = list.length - 1; i >= 0; i--) {
       const distance = this.position.dist(list[i]);
-      if (distance < this.maxSpeed && this.energy < this.maxEnergy) {
-        list.splice(i, 1);
-        this.energy += nutritionValue;
-      } else if (distance < closestDist && distance < perception) {
+      if (distance < closestDist && distance < perception) {
         closestDist = distance;
-        closestPoint = list[i];
+        closestIndex = i;
       }
     }
-    return closestPoint ? this.seek(closestPoint) : createVector(0, 0);
+    return closestIndex;
   }
 
-  actOnEnvironment(food) {
-    const foodSteer = this.seekClosest(food, algaeNutritionEnergy, this.dna[2]);
-    // const poisonSteer = this.seekClosest(poison, -1, this.dna[3]);
+  actOnEnvironment(foods, predators) {
+    const nextFoodIndex = this.closestObjectIndex(foods, this.dna[2]);
+    const foodSteer =
+      nextFoodIndex != null && this.energy < this.maxEnergy
+        ? this.forceTo(foods[nextFoodIndex])
+        : createVector(0, 0);
     foodSteer.mult(this.dna[0]);
-    // poisonSteer.mult(this.dna[1]);
     this.applyForce(foodSteer);
-    // this.applyForce(poisonSteer);
-  }
+    // eat the food
+    if (nextFoodIndex != null) {
+      const foodDist = this.position.dist(foods[nextFoodIndex]);
+      if (foodDist < this.maxSpeed) {
+        foods.splice(nextFoodIndex, 1);
+        this.energy += algaeNutritionEnergy;
+      }
+    }
 
+    const nextPredatorIndex = this.closestObjectIndex(predators, this.dna[3]);
+    const predatorSteer =
+    nextPredatorIndex != null 
+        ? this.forceTo(predators[nextPredatorIndex])
+        : createVector(0, 0);
+    predatorSteer.mult(this.dna[1]);
+    this.applyForce(predatorSteer);
+  }
 
 
 
