@@ -205,13 +205,16 @@ function restartSketch() {
 function storeData() {
   timeElapsedInSeconds++; 
   
+  let totalAlgaeEnergy = algaes.length * algaeNutritionEnergy;
   let totalCiliateEnergy = 0;
   for (let ciliate of ciliates) {
     totalCiliateEnergy += ciliate.energy;
   }
-  let totalAlgaeEnergy = algaes.length * algaeNutritionEnergy;
-  let totalCopepodEnergy = copepods.length * ciliateNutritionEnergy; // I'm assuming copepods' energy is stored similarly to ciliates'
-  let totalEnergy = totalCiliateEnergy + totalAlgaeEnergy;
+  let totalCopepodEnergy = 0;
+  for (let copepod of copepods) {
+    totalCopepodEnergy += copepod.energy;
+  }
+  let totalEnergy = totalCiliateEnergy + totalAlgaeEnergy + totalCopepodEnergy;
 
   // Store the data
   frameData.push([
