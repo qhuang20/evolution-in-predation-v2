@@ -1,8 +1,8 @@
 class Ciliate {
   constructor(x, y, dna) {
-    this.acceleration = createVector(0, 0);
-    this.velocity = createVector(0, -1);
     this.position = createVector(x, y);
+    this.velocity = createVector(0, -1);
+    this.acceleration = createVector(0, 0);
     this.ovalWidth = random(10, 20);
     this.ovalHeight = random(20, 40);
     this.maxSpeed = 3;
@@ -10,9 +10,9 @@ class Ciliate {
     this.maxEnergy = 10;
     this.mutationRate = 0.01;
 
-    this.reproductionRate = 0.002; // default is 0.002
+    this.reproductionRate = 0.005; // default is 0.002
     this.lifespan = 1;
-    this.agingRate = 0.0005; // default is 0.0005
+    this.agingRate = 0.0005; 
     this.energy = 1; // init is 1 when it's born
     this.energyDissipationRate = 0.001;
 
@@ -48,6 +48,9 @@ class Ciliate {
     this.position.add(this.velocity);
     this.acceleration.mult(0);
   }
+
+
+
 
   applyForce(force) {
     this.acceleration.add(force);
@@ -103,7 +106,7 @@ class Ciliate {
 
 
   reproduce() {
-    if (random(1) < this.reproductionRate && this.energy > 8) {
+    if (random(1) < this.reproductionRate && this.energy > 3) {
       this.energy -= 2; // Use some energy for reproduction
       return new Ciliate(this.position.x, this.position.y, this.dna);
     }
