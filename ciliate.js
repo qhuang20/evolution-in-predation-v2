@@ -10,7 +10,7 @@ class Ciliate {
     this.maxEnergy = 10;
     this.mutationRate = 0.01;
 
-    this.reproductionRate = 0.005; // default is 0.002
+    this.reproductionRate = 0.003; // default is 0.002
     this.lifespan = 1;
     this.agingRate = 0.0005; 
     this.energy = 1; // init is 1 when it's born
@@ -85,7 +85,7 @@ class Ciliate {
     foodSteer.mult(this.dna[0]);
     this.applyForce(foodSteer);
     // eat the food
-    if (nextFoodIndex != null) {
+    if (nextFoodIndex != null && this.energy < this.maxEnergy) {
       const foodDist = this.position.dist(foods[nextFoodIndex]);
       if (foodDist < this.maxSpeed) {
         foods.splice(nextFoodIndex, 1);

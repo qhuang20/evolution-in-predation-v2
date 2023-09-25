@@ -10,7 +10,7 @@ class Copepod {
     this.maxEnergy = 20; // greater than ciliate
     this.mutationRate = 0.02; // greater than ciliate
 
-    this.reproductionRate = 0.001; // lower than ciliate
+    this.reproductionRate = 0.0012; // lower than ciliate
     this.lifespan = 2.5; // greater than ciliate
     this.agingRate = 0.0005; 
     this.energy = 2; // greater than ciliate
@@ -85,7 +85,7 @@ class Copepod {
     foodSteer.mult(this.dna[0]);
     this.applyForce(foodSteer);
     // eat the food
-    if (nextFoodIndex != null) {
+    if (nextFoodIndex != null && this.energy < this.maxEnergy) {
       const foodDist = this.position.dist(foods[nextFoodIndex].position);
       if (foodDist < this.ovalWidth) {
         this.energy += foods[nextFoodIndex].energy;
@@ -99,7 +99,7 @@ class Copepod {
 
 
   reproduce() {
-    if (random(1) < this.reproductionRate && this.energy > 12) {
+    if (random(1) < this.reproductionRate && this.energy > 15) {
       this.energy -= 4; // Use some energy for reproduction
       return new Copepod(this.position.x, this.position.y, this.dna);
     }
